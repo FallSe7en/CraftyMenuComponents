@@ -267,6 +267,8 @@ Crafty.c("GridContainer", {
         self._grid_num_columns = 0;
         self._grid_num_rows    = 0;
 
+        self._elements = {};
+
         self.css({
             "border-color" : "white",
             "border-style" : "solid",
@@ -285,6 +287,8 @@ Crafty.c("GridContainer", {
         self.x = x;
         self.y = y;
 
+        self._place_all_elements();
+
         return self;
     },
 
@@ -293,6 +297,8 @@ Crafty.c("GridContainer", {
 
         self.w = width;
         self.h = height;
+
+        self._place_all_elements();
 
         return self;
     },
@@ -305,6 +311,8 @@ Crafty.c("GridContainer", {
         self._padding_left   = left;
         self._padding_right  = right;
 
+        self._place_all_elements();
+
         return self;
     },
 
@@ -313,6 +321,8 @@ Crafty.c("GridContainer", {
 
         self._grid_num_columns = columns;
         self._grid_num_rows    = rows;
+
+        self._place_all_elements();
 
         return self;
     },
@@ -325,12 +335,34 @@ Crafty.c("GridContainer", {
                   : [ Array.prototype.slice.call(arguments) ];
 
         items.forEach(function (item) {
-            var element = item[0];
-            var column  = item[1];
-            var row     = item[2];
+            var id      = item[0];
+            var element = item[1];
+            var column  = item[2];
+            var row     = item[3];
 
             self._place_element(element, column, row);
-            self.attach(element);
+
+            self._elements[id] = {
+                element : element,
+                column  : column,
+                row     : row
+            };
+        });
+
+        return self;
+    },
+
+    remove: function () {
+        var self = this;
+
+        var ids = arguments[0] instanceof Array
+                ? Array.prototype.slice.call(arguments)
+                : [ Array.prototype.slice.call(arguments) ];
+
+        ids.forEach(function (id) {
+            self._elements[id].element.destroy();
+
+            delete self._elements[id];
         });
 
         return self;
@@ -349,6 +381,18 @@ Crafty.c("GridContainer", {
 
         element.x = parseInt(left + (grid_element_width / 2) - (element._w / 2) + self._x);
         element.y = parseInt(top + (grid_element_height / 2) - (element._h / 2) + self._y);
+
+        return self;
+    },
+
+    _place_all_elements: function () {
+        var self = this;
+
+        Object.keys(self._elements).forEach(function (id) {
+            var item = self._elements[id];
+
+            self._place_element(item.element, item.column, item.row);
+        });
 
         return self;
     }
