@@ -152,7 +152,7 @@ Crafty.c("Selector", {
         self._selection = Crafty.e("2D, DOM, Text")
                                 .css(self.settings.selection_css);
 
-        self._left = Crafty.e("2D, DOM, Mouse, Button")
+        self._left = Crafty.e("Button")
                            .label("<")
                            .css(self.settings.left_css)
                            .callback(function () {
@@ -163,7 +163,7 @@ Crafty.c("Selector", {
 
                                self.trigger("Change");
                            });
-        self._right = Crafty.e("2D, DOM, Mouse, Button")
+        self._right = Crafty.e("Button")
                             .label(">")
                             .css(self.settings.right_css)
                             .callback(function () {
