@@ -123,24 +123,39 @@ Crafty.c("Selector", {
 
         self.requires("2D, DOM");
 
-        self._left      = null;
-        self._right     = null;
-        self._selection = null;
+        self._left      = undefined;
+        self._right     = undefined;
+        self._selection = undefined;
 
         self._options   = [];
         self._current   = 0;
+
+        self._untouched_entity = undefined;
 
         self._callback  = function () {};
 
         self._add_child_components();
 
         self.bind("Change", function () {
+            var current_selection = self._options[self._current];
+
             self._left.attr(self._get_selector_button_attributes());
             self._right.attr(self._get_selector_button_attributes(1));
-            self._selection.attr(self._get_selection_attributes());
 
-            self._selection.text(self._options[self._current]);
-            self._callback(self._options[self._current]);
+            if (typeof(self._untouched_entity) !== "undefined") {
+                self._untouched_entity.destroy();
+            }
+
+            if (typeof(current_selection) === "string") {
+                self._selection.attr(self._get_selection_attributes());
+
+                self._selection.text(self._options[self._current]);
+                self._callback(self._options[self._current]);
+            } else if (typeof(current_selection) === "function") {
+                self._place_entity(current_selection);
+            } else {
+                console.log("Warning [Selector]: Unknown option type.");
+            }
         });
 
         return self;
@@ -208,6 +223,21 @@ Crafty.c("Selector", {
             "w" : self._w - (self.settings.selector_button.width * 2),
             "h" : self.settings.selector_button.height
         };
+    },
+
+    _place_entity: function (entity_function) {
+        var self = this;
+
+        self._untouched_entity = entity_function();
+        
+        self._untouched_entity.attr({
+            x: parseInt(self._x + (self._w / 2) - (self._untouched_entity._w / 2)),
+            y: parseInt(self._y + (self._h / 2) - (self._untouched_entity._h / 2))
+        }).bind("StartDrag", function () {
+            self._untouched_entity = undefined;
+        });
+
+        return self;
     },
 
     options: function (options) {
