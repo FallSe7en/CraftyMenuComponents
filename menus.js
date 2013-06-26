@@ -142,20 +142,14 @@ Crafty.c("Selector", {
             self._left.attr(self._get_selector_button_attributes());
             self._right.attr(self._get_selector_button_attributes(1));
 
-            if (typeof(self._untouched_entity) !== "undefined") {
-                self._untouched_entity.destroy();
-            }
-
             if (typeof(current_selection) === "string") {
                 self._selection.attr(self._get_selection_attributes());
-
                 self._selection.text(self._options[self._current]);
-                self._callback(self._options[self._current]);
             } else if (typeof(current_selection) === "function") {
                 self._place_entity(current_selection);
-            } else {
-                console.log("Warning [Selector]: Unknown option type.");
             }
+
+            self._callback(self._options[self._current]);
         });
 
         return self;
@@ -198,16 +192,19 @@ Crafty.c("Selector", {
     _get_selector_button_attributes: function (is_right) {
         var self = this;
 
+        var w = self.settings.selector_button.width;
+        var h = self.settings.selector_button.height;
+
         var x = self._x;
-        var y = self._y;
+        var y = parseInt(self._y + (self._h / 2) - (h / 2));
 
         if (is_right) {
-            x += self._w - self.settings.selector_button.width;
+            x += self._w - w;
         }
 
         return {
-            "w"     : self.settings.selector_button.width,
-            "h"     : self.settings.selector_button.height,
+            "w"     : w,
+            "h"     : h,
             "x"     : x,
             "y"     : y,
             "alpha" : 0.8
@@ -233,8 +230,6 @@ Crafty.c("Selector", {
         self._untouched_entity.attr({
             x: parseInt(self._x + (self._w / 2) - (self._untouched_entity._w / 2)),
             y: parseInt(self._y + (self._h / 2) - (self._untouched_entity._h / 2))
-        }).bind("StartDrag", function () {
-            self._untouched_entity = undefined;
         });
 
         return self;
