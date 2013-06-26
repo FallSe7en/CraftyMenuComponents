@@ -214,9 +214,13 @@ Crafty.c("Selector", {
     _get_selection_attributes: function () {
         var self = this;
 
+        var y = parseInt(
+            self._y + (self._h / 2) - (self.settings.selector_button.height / 2)
+        );
+
         return {
             "x" : self._x + self.settings.selector_button.width,
-            "y" : self._y,
+            "y" : y,
             "w" : self._w - (self.settings.selector_button.width * 2),
             "h" : self.settings.selector_button.height
         };
