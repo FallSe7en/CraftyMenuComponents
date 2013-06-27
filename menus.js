@@ -283,6 +283,15 @@ Crafty.c("Selector", {
 });
 
 Crafty.c("GridContainer", {
+    settings: {
+        css: {
+            "border-color" : "white",
+            "border-style" : "solid",
+            "border-width" : "1px",
+            "color"        : "white"
+        }
+    },
+
     init: function () {
         var self = this;
 
@@ -298,12 +307,7 @@ Crafty.c("GridContainer", {
 
         self._elements = {};
 
-        self.css({
-            "border-color" : "white",
-            "border-style" : "solid",
-            "border-width" : "1px",
-            "color"        : "white"
-        });
+        self.css(self.settings.css);
 
         self.alpha = 0.8;
 
