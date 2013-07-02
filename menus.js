@@ -270,13 +270,13 @@ Crafty.c("Selector", {
     get_selected: function () {
         var self = this;
 
-        return self._options[self._current_select];
+        return self._options[self._current];
     },
 
     reset: function () {
         var self = this;
 
-        self._current_select = 0;
+        self._current = 0;
 
         return self;
     }
@@ -362,10 +362,7 @@ Crafty.c("GridContainer", {
 
     add: function () {
         var self = this;
-
-        var items = arguments[0] instanceof Array
-                  ? Array.prototype.slice.call(arguments)
-                  : [ Array.prototype.slice.call(arguments) ];
+        var items = Array.prototype.slice.call(arguments);
 
         items.forEach(function (item) {
             var id      = item[0];
@@ -415,6 +412,8 @@ Crafty.c("GridContainer", {
         element.x = parseInt(left + (grid_element_width / 2) - (element._w / 2) + self._x);
         element.y = parseInt(top + (grid_element_height / 2) - (element._h / 2) + self._y);
 
+        self.attach(element);
+
         return self;
     },
 
@@ -426,6 +425,80 @@ Crafty.c("GridContainer", {
 
             self._place_element(item.element, item.column, item.row);
         });
+
+        return self;
+    }
+});
+
+Crafty.c("ColorSwatches", {
+    init: function () {
+        var self = this;
+
+        self.requires("GridContainer");
+
+        self._swatches = [];
+        self._callback = function () {};
+
+        self.css({
+            "border-style" : "none",
+            "border-width" : "0px"
+        });
+
+        return self;
+    },
+
+    swatches: function (swatches) {
+        var self = this;
+
+        for (var i = 0; i < self._swatches.length; i++) {
+            self._swatches.splice(i, 1).destroy();
+        }
+
+        self._determine_grid_dimensions(swatches.length);
+
+        var x = 0, y = 0;
+        var swatch_width = parseInt(self._w / self._grid_num_columns);
+        var swatch_height = parseInt(self._h / self._grid_num_rows);
+
+        swatches.forEach(function (swatch) {
+            var swatch_entity = Crafty.e("2D, DOM, Mouse")
+                .attr({ w: swatch_width, h: swatch_height })
+                .css({ "background-color" : swatch })
+               .bind("Click", function () { self._callback(swatch); });
+
+            self.add([ swatch, swatch_entity, x, y ]);
+            self._swatches.push(swatch_entity);
+
+            if (x >= self._grid_num_columns - 1) {
+                x = 0;
+                y++;
+            } else {
+                x++;
+            }
+        });
+
+        return self;
+    },
+
+    _determine_grid_dimensions: function (num_swatches) {
+        var self = this;
+
+        var num_y = Math.floor(num_swatches / 2);
+        var num_x = num_swatches - num_y;
+
+        self.set_grid(num_x, num_y);
+
+        return self;
+    },
+
+    callback: function (callback) {
+        var self = this;
+
+        if (typeof(callback) !== "undefined") {
+            self._callback = callback;
+        } else {
+            return self._callback;
+        }
 
         return self;
     }
