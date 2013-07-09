@@ -369,8 +369,17 @@ Crafty.c("GridContainer", {
             var element = item[1];
             var column  = item[2];
             var row     = item[3];
+            var colspan = item[4] || 1;
+            var rowspan = item[5] || 1;
 
-            self._place_element(element, column, row);
+            if (colspan > self._grid_num_columns) {
+                colspan = self._grid_num_columns;
+            }
+            if (rowspan > self._grid_num_rows) {
+                rowspan = self._grid_num_rows;
+            }
+
+            self._place_element(element, column, row, colspan, rowspan);
 
             self._elements[id] = {
                 element : element,
@@ -390,21 +399,21 @@ Crafty.c("GridContainer", {
                 : [ Array.prototype.slice.call(arguments) ];
 
         ids.forEach(function (id) {
+            self.detach(self._elemented[id].element);
             self._elements[id].element.destroy();
-
             delete self._elements[id];
         });
 
         return self;
     },
 
-    _place_element: function (element, column, row) {
+    _place_element: function (element, column, row, colspan, rowspan) {
         var self = this;
 
         var grid_element_width = (self._w - self._padding_left - self._padding_right)
-                               / self._grid_num_columns;
+                               / self._grid_num_columns * colspan;
         var grid_element_height = (self._h - self._padding_top - self._padding_bottom)
-                                / self._grid_num_rows;
+                                / self._grid_num_rows * rowspan;
 
         var left = (grid_element_width * column) + self._padding_left;
         var top = (grid_element_height * row) + self._padding_top;
@@ -483,10 +492,12 @@ Crafty.c("ColorSwatches", {
     _determine_grid_dimensions: function (num_swatches) {
         var self = this;
 
-        var num_y = Math.floor(num_swatches / 2);
-        var num_x = num_swatches - num_y;
+        if (self._grid_num_columns === 0 && self._grid_num_rows === 0) {
+            var num_y = Math.floor(num_swatches / 2);
+            var num_x = num_swatches - num_y;
 
-        self.set_grid(num_x, num_y);
+            self.set_grid(num_x, num_y);
+        }
 
         return self;
     },
