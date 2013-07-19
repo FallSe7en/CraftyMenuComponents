@@ -1,25 +1,21 @@
 Crafty.c("Button", {
-    settings: {
-        css: {
-            "border-color" : "white",
-            "border-style" : "solid",
-            "border-width" : "1px",
-            "color"        : "white",
-            "text-align"   : "center",
-        }
-    },
-
     init: function () {
         var self = this;
 
         self.requires("2D, DOM, Mouse, Text");
 
         self._label         = "";
-        self._callback      = null;
+        self._callback      = undefined;
         self._enabled       = true;
-        self._default_alpha = null;
+        self._default_alpha = undefined;
 
-        self.css(self.settings.css);
+        self.css({
+            "border-color" : "white",
+            "border-style" : "solid",
+            "border-width" : "1px",
+            "color"        : "white",
+            "text-align"   : "center",
+        });
         self.textFont({
             size   : "12px",
             family : "monospace"
@@ -43,13 +39,19 @@ Crafty.c("Button", {
             }
         });
 
-        self.bind("Draw", function (e) {
-            var line_height = self._h;
+        self.bind("Draw", self._draw_label);
 
-            self._element.innerHTML = "<div style='line-height:" + self._h + "px'>"
-                                    + self._label
-                                    + "</div>";
-        });
+        return self;
+    },
+
+    _draw_label: function () {
+        var self = this;
+
+        var line_height = self._h;
+
+        self._element.innerHTML = "<div style='line-height:" + self._h + "px'>"
+                                + self._label
+                                + "</div>";
 
         return self;
     },
@@ -59,6 +61,7 @@ Crafty.c("Button", {
 
         if (typeof(label) !== "undefined") {
             self._label = label;
+            self._draw_label();
         } else {
             return self._label;
         }
@@ -129,8 +132,6 @@ Crafty.c("Selector", {
 
         self._options   = [];
         self._current   = 0;
-
-        self._untouched_entity = undefined;
 
         self._callback  = function () {};
 
@@ -229,11 +230,11 @@ Crafty.c("Selector", {
     _place_entity: function (entity_function) {
         var self = this;
 
-        self._untouched_entity = entity_function();
+        var entity = entity_function();
         
-        self._untouched_entity.attr({
-            x: parseInt(self._x + (self._w / 2) - (self._untouched_entity._w / 2)),
-            y: parseInt(self._y + (self._h / 2) - (self._untouched_entity._h / 2))
+        entity.attr({
+            x: parseInt(self._x + (self._w / 2) - (entity._w / 2)),
+            y: parseInt(self._y + (self._h / 2) - (entity._h / 2))
         });
 
         return self;
@@ -512,5 +513,189 @@ Crafty.c("ColorSwatches", {
         }
 
         return self;
+    }
+});
+
+Crafty.c("DropDown", {
+    init: function () {
+        var self = this;
+
+        self.requires("2D, DOM");
+
+        self._current_selected = undefined;
+
+        self._show_options_button = undefined;
+        self._shown_options = [];
+        self._is_showing = false;
+
+        self._options = [];
+        self._current = 0;
+
+        self._callback = function () {};
+
+        self._add_child_components();
+        self.bind("Change", self._place_child_components);
+
+        return self;
+    },
+
+    show_options: function () {
+        var self = this;
+
+        self._shown_options.forEach(function (option) {
+            option.visible = true;
+        });
+        self._is_showing = true;
+
+        return self;
+    },
+
+    hide_options: function () {
+        var self = this;
+
+        self._shown_options.forEach(function (option) {
+            option.visible = false;
+        });
+        self._is_showing = false;
+
+        return self;
+    },
+
+    toggle_options: function () {
+        var self = this;
+
+        if (self._is_showing) {
+            self.hide_options();
+            self._is_showing = false;
+        } else {
+            self.show_options();
+            self._is_showing = true;
+        }
+
+        return self;
+    },
+
+    _add_child_components: function () {
+        var self = this;
+
+        self._show_options_button = Crafty.e("Button")
+            .label("&#8711;")
+            .css({
+                "font-size"    : "small",
+                "border-style" : "solid",
+                "border-width" : "1px"
+            })
+            .callback(function () {
+                self.toggle_options();
+            });
+
+        self._current_selected = Crafty.e("Button")
+            .css({
+                "text-align"   : "center",
+                "line-height"  : self._h,
+                "border-style" : "solid",
+                "border-width" : "1px"
+            })
+            .label("Select")
+            .disable();
+        self._current_selected.alpha = 1;
+
+        self.attach(self._show_options_button);
+        self.attach(self._current_selected);
+
+        return self;
+    },
+
+    _place_child_components: function () {
+        var self = this;
+
+        self._show_options_button.attr({
+            "w"     : self._h,
+            "h"     : self._h,
+            "x"     : self._x + self._w - self._h,
+            "y"     : self._y,
+            "alpha" : 0.8
+        });
+
+        self._current_selected.attr({
+            "w" : self._w - self._show_options_button._w,
+            "h" : self._h,
+            "x" : self._x,
+            "y" : self._y
+        });
+        
+        return self;
+    },
+
+    _place_shown_options: function () {
+        var self = this;
+
+        for (var shown_option in self._shown_options) {
+            self.detach(shown_option);
+            shown_option.destroy();
+        }
+        self._shown_options = [];
+
+        self._options.forEach(function (option, i) {
+            var shown_option = Crafty.e("Button")
+                .label(option)
+                .attr({
+                    "w"     : self._w,
+                    "h"     : self._h,
+                    "x"     : self._x,
+                    "y"     : self._y + (self._h * (i + 1)) + 2,
+                    "alpha" : 0.8
+                })
+                .css({
+                    "background-color" : "black",
+                    "border-style"     : "none"
+                })
+                .callback(function () {
+                    self._current = i;
+                    self._current_selected.label(option);
+                    self._callback(option);
+                    self.hide_options();
+                });
+
+            shown_option.z = 100;
+
+            self.attach(shown_option);
+            self._shown_options.push(shown_option);
+        });
+
+        self.hide_options();
+
+        return self;
+    },
+
+    options: function (options) {
+        var self = this;
+
+        if (typeof(options) !== "undefined") {
+            self._options = options;
+            self._place_shown_options();
+        } else {
+            return self._options;
+        }
+
+        return self;
+    },
+
+    callback: function (callback) {
+        var self = this;
+
+        if (typeof(callback) !== "undefined") {
+            self._callback = callback;
+        } else {
+            return self._callback;
+        }
+
+        return self;
+    },
+
+    get_selected: function () {
+        var self = this;
+
+        return self._options[self._current];
     }
 });
