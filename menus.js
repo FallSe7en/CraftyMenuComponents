@@ -400,9 +400,11 @@ Crafty.c("GridContainer", {
                 : [ Array.prototype.slice.call(arguments) ];
 
         ids.forEach(function (id) {
-            self.detach(self._elemented[id].element);
-            self._elements[id].element.destroy();
-            delete self._elements[id];
+            if (id in self._elements) {
+                self.detach(self._elements[id].element);
+                self._elements[id].element.destroy();
+                delete self._elements[id];
+            }
         });
 
         return self;
