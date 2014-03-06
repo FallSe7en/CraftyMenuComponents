@@ -722,6 +722,9 @@
 
             self._status = 0;
 
+            self._num_segments = undefined;
+            self._segments = [];
+
             self.css(self.settings.css);
 
             self._status_bar = Crafty.e("2D, DOM");
@@ -737,6 +740,8 @@
                 self._status_bar.y = self._y - self._status_bar._h + self._h + 1;
 
                 self._status_bar.alpha = self._alpha;
+
+                self._resegment();
             });
 
             return self;
@@ -754,6 +759,41 @@
             self._status = new_status;
 
             self.trigger("Change");
+
+            return self;
+        },
+
+        segment: function (num_segments) {
+            var self = this, segment_height = self._h / num_segments;
+
+            self._num_segments = num_segments;
+
+            for (var i = 0; i < num_segments; i++) {
+                var segment = Crafty.e("2D, DOM").attr({
+                    x: self._x,
+                    y: self._y + (segment_height * i),
+                    w: self._w,
+                    h: segment_height
+                }).css(self.settings.css);
+
+                self.attach(segment);
+                self._segments.push(segment);
+            }
+
+            return self;
+        },
+
+        _resegment: function () {
+            var self = this;
+
+            if (typeof(self._num_segments) !== "undefined") {
+                while (self._segments.length > 0) {
+                    var segment = self._segments.shift();
+                    segment.destroy();
+                }
+
+                self.segment(self._num_segments);
+            }
 
             return self;
         }
@@ -776,6 +816,9 @@
 
             self._status = 0;
 
+            self._num_segments = undefined;
+            self._segments = [];
+
             self.css(self.settings.css);
 
             self._status_bar = Crafty.e("2D, DOM");
@@ -791,6 +834,8 @@
                 self._status_bar.y = self._y + 1;
 
                 self._status_bar.alpha = self._alpha;
+
+                self._resegment();
             });
 
             return self;
@@ -808,6 +853,41 @@
             self._status = new_status;
 
             self.trigger("Change");
+
+            return self;
+        },
+
+        segment: function (num_segments) {
+            var self = this, segment_width = self._w / num_segments;
+
+            self._num_segments = num_segments;
+
+            for (var i = 0; i < num_segments; i++) {
+                var segment = Crafty.e("2D, DOM").attr({
+                    x: self._x + (segment_width * i),
+                    y: self._y,
+                    w: segment_width,
+                    h: self._h
+                }).css(self.settings.css);
+
+                self.attach(segment);
+                self._segments.push(segment);
+            }
+
+            return self;
+        },
+
+        _resegment: function () {
+            var self = this;
+
+            if (typeof(self._num_segments) !== "undefined") {
+                while (self._segments.length > 0) {
+                    var segment = self._segments.shift();
+                    segment.destroy();
+                }
+
+                self.segment(self._num_segments);
+            }
 
             return self;
         }
