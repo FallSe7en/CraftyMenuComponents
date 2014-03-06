@@ -14,7 +14,7 @@ Crafty.c("Button", {
             "border-style" : "solid",
             "border-width" : "1px",
             "color"        : "white",
-            "text-align"   : "center",
+            "text-align"   : "center"
         });
         self.textFont({
             size   : "12px",
@@ -699,5 +699,113 @@ Crafty.c("DropDown", {
         var self = this;
 
         return self._options[self._current];
+    }
+});
+
+Crafty.c("VerticalStatusBar", {
+    settings: {
+        css: {
+            "border-color" : "white",
+            "border-style" : "solid",
+            "border-width" : "1px",
+            "color"        : "white"
+        }
+    },
+
+    init: function () {
+        var self = this;
+
+        self.requires("2D, DOM");
+
+        self._status = 0;
+
+        self.css(self.settings.css);
+
+        self._status_bar = Crafty.e("2D, DOM");
+        self.attach(self._status_bar);
+
+        self.bind("Change", function () {
+            self._status_bar.css({ "background-color" : self.css("color") });
+
+            self._status_bar.w = self._w;
+            self._status_bar.h = self._h * self._status;
+
+            self._status_bar.x = self._x + 1;
+            self._status_bar.y = self._y - self._status_bar._h + self._h + 1;
+
+            self._status_bar.alpha = self._alpha;
+        });
+
+        return self;
+    },
+
+    update: function (new_status) {
+        var self = this;
+
+        if (new_status > 1) {
+            new_status = 1;
+        } else if (new_status < 0) {
+            new_status = 0;
+        }
+
+        self._status = new_status;
+
+        self.trigger("Change");
+
+        return self;
+    }
+});
+
+Crafty.c("HorizontalStatusBar", {
+    settings: {
+        css: {
+            "border-color" : "white",
+            "border-style" : "solid",
+            "border-width" : "1px",
+            "color"        : "white"
+        }
+    },
+
+    init: function () {
+        var self = this;
+
+        self.requires("2D, DOM");
+
+        self._status = 0;
+
+        self.css(self.settings.css);
+
+        self._status_bar = Crafty.e("2D, DOM");
+        self.attach(self._status_bar);
+
+        self.bind("Change", function () {
+            self._status_bar.css({ "background-color" : self.css("color") });
+
+            self._status_bar.w = self._w * self._status;
+            self._status_bar.h = self._h;
+
+            self._status_bar.x = self._x + 1;
+            self._status_bar.y = self._y + 1;
+
+            self._status_bar.alpha = self._alpha;
+        });
+
+        return self;
+    },
+
+    update: function (new_status) {
+        var self = this;
+
+        if (new_status > 1) {
+            new_status = 1;
+        } else if (new_status < 0) {
+            new_status = 0;
+        }
+
+        self._status = new_status;
+
+        self.trigger("Change");
+
+        return self;
     }
 });
