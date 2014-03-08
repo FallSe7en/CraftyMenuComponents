@@ -748,13 +748,17 @@
 
             self._num_segments = num_segments;
 
-            for (var i = 0; i < num_segments; i++) {
+            for (var i = 0; i < (num_segments - 1); i++) {
                 var segment = Crafty.e("2D, DOM").attr({
-                    x: self._x,
+                    x: self._x + 1,
                     y: self._y + (segment_height * i),
                     w: self._w,
                     h: segment_height
-                }).css(self.settings.css);
+                }).css(self.settings.css).css({
+                    "border-right-style" : "none",
+                    "border-top-style"   : "none",
+                    "border-left-style"  : "none",
+                });
 
                 self.attach(segment);
                 self._segments.push(segment);
@@ -842,13 +846,17 @@
 
             self._num_segments = num_segments;
 
-            for (var i = 0; i < num_segments; i++) {
+            for (var i = 0; i < (num_segments - 1); i++) {
                 var segment = Crafty.e("2D, DOM").attr({
                     x: self._x + (segment_width * i),
-                    y: self._y,
+                    y: self._y + 1,
                     w: segment_width,
                     h: self._h
-                }).css(self.settings.css);
+                }).css(self.settings.css).css({
+                    "border-top-style"    : "none",
+                    "border-bottom-style" : "none",
+                    "border-left-style"   : "none",
+                });
 
                 self.attach(segment);
                 self._segments.push(segment);
