@@ -324,8 +324,6 @@
             self.x = x;
             self.y = y;
 
-            self._place_all_elements();
-
             return self;
         },
 
@@ -334,8 +332,6 @@
 
             self.w = width;
             self.h = height;
-
-            self._place_all_elements();
 
             return self;
         },
@@ -348,8 +344,6 @@
             self._padding_left   = left;
             self._padding_right  = right;
 
-            self._place_all_elements();
-
             return self;
         },
 
@@ -358,8 +352,6 @@
 
             self._grid_num_columns = columns;
             self._grid_num_rows    = rows;
-
-            self._place_all_elements();
 
             return self;
         },
@@ -431,18 +423,6 @@
 
             return self;
         },
-
-        _place_all_elements: function () {
-            var self = this;
-
-            Object.keys(self._elements).forEach(function (id) {
-                var item = self._elements[id];
-
-                self._place_element(item.element, item.column, item.row);
-            });
-
-            return self;
-        }
     });
 
     Crafty.c("ColorSwatches", {
