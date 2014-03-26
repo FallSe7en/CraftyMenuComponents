@@ -136,6 +136,8 @@
             self._options   = [];
             self._current   = 0;
 
+            self._current_selected_entity = undefined;
+
             self._callback  = function () {};
 
             self._add_child_components();
@@ -233,12 +235,19 @@
         _place_entity: function (entity_function) {
             var self = this;
 
-            var entity = entity_function();
-            
-            entity.attr({
-                x: parseInt(self._x + (self._w / 2) - (entity._w / 2)),
-                y: parseInt(self._y + (self._h / 2) - (entity._h / 2))
+            if (typeof(self._current_selected_entity) !== "undefined") {
+                self.detach(self._current_selected_entity);
+                self._current_selected_entity.destroy();
+            }
+
+            self._current_selected_entity = entity_function();
+
+            self._current_selected_entity.attr({
+                x: parseInt(self._x + (self._w / 2) - (self._current_selected_entity._w / 2)),
+                y: parseInt(self._y + (self._h / 2) - (self._current_selected_entity._h / 2))
             });
+
+            self.attach(self._current_selected_entity);
 
             return self;
         },
