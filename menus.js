@@ -1,11 +1,25 @@
 (function () {
     "use strict";
 
+    Crafty.c("AttachedZ", {
+        init: function () {
+            this.setter("z", function (new_z) {
+                var delta_z = new_z - this._z;
+
+                this._attr("_z", new_z);
+
+                this._children.forEach(function (child) {
+                    child.z = child._z + delta_z;
+                });
+            });
+        }
+    });
+
     Crafty.c("Button", {
         init: function () {
             var self = this;
 
-            self.requires("2D, DOM, Mouse, Text");
+            self.requires("2D, DOM, HTML, Mouse");
 
             self._label         = "";
             self._callback      = undefined;
@@ -17,11 +31,9 @@
                 "border-style" : "solid",
                 "border-width" : "1px",
                 "color"        : "white",
-                "text-align"   : "center"
-            });
-            self.textFont({
-                size   : "12px",
-                family : "monospace"
+                "text-align"   : "center",
+                "font-size"    : "12px",
+                "font-family"  : "monospace"
             });
 
             self.bind("Click", function () {
@@ -48,15 +60,9 @@
         },
 
         _draw_label: function () {
-            var self = this;
-
-            var line_height = self._h;
-
-            self._element.innerHTML = "<div style='line-height:" + self._h + "px'>"
-                                    + self._label
-                                    + "</div>";
-
-            return self;
+            this.replace(
+                "<div style='line-height:" + this._h + "px'>" + this._label + "</div>"
+            );
         },
 
         label: function (label) {
@@ -127,7 +133,7 @@
         init: function () {
             var self = this;
 
-            self.requires("2D, DOM");
+            self.requires("2D, AttachedZ, DOM");
 
             self._left      = undefined;
             self._right     = undefined;
@@ -308,7 +314,7 @@
         init: function () {
             var self = this;
 
-            self.requires("2D, DOM");
+            self.requires("2D, AttachedZ, DOM");
 
             self._padding_top    = 0;
             self._padding_bottom = 0;
@@ -514,7 +520,7 @@
         init: function () {
             var self = this;
 
-            self.requires("2D, DOM");
+            self.requires("2D, AttachedZ, DOM");
 
             self._current_selected = undefined;
 
@@ -707,7 +713,7 @@
         init: function () {
             var self = this;
 
-            self.requires("2D, DOM");
+            self.requires("2D, AttachedZ, DOM");
 
             self._status = 0;
 
@@ -805,7 +811,7 @@
         init: function () {
             var self = this;
 
-            self.requires("2D, DOM");
+            self.requires("2D, AttachedZ, DOM");
 
             self._status = 0;
 
