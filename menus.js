@@ -895,4 +895,97 @@
             return self;
         }
     });
+
+    Crafty.c("ToolTip", {
+        init: function () {
+            var self = this;
+
+            self.requires("Mouse");
+
+            self._add_tooltip();
+
+            self.bind("MouseOver", function () {
+                self._tooltip.visible = true;
+            });
+            self.bind("MouseOut", function () {
+                self._tooltip.visible = false;
+            });
+
+            return self;
+        },
+
+        _add_tooltip: function () {
+            var self = this;
+
+            self._tooltip = Crafty.e("2D, DOM, HTML")
+                .attr({ alpha: 0.8 })
+                .css({
+                    "border-color" : "white",
+                    "border-style" : "solid",
+                    "border-width" : "1px",
+                    "color"        : "white",
+                    "text-align"   : "center",
+                    "font-size"    : "12px",
+                    "font-family"  : "monospace"
+                })
+            self._tooltip.visible = false;
+
+            self.attach(self._tooltip);
+        },
+
+        tooltip_text: function (text, width, height) {
+            var self = this;
+
+            if (!width || !height) {
+                console.warn("Missing dimensions.");
+            }
+
+            self._tooltip.replace(
+                "<div style='line-height:" + height + "px'>"
+                    + text
+                + "</div>"
+            );
+
+            if (width)  self._tooltip.w = width;
+            if (height) self._tooltip.h = height;
+
+            self.position_tooltip();
+
+            return self;
+        },
+
+        position_tooltip: function (position) {
+            var self = this, x, y,
+                v_centered = self._y + (self._h / 2) - (self._tooltip._h / 2),
+                h_centered = self._x + (self._w / 2) - (self._tooltip._w / 2),
+                margin = 5;
+
+            if (position === undefined) {
+                position = self._position || "top";
+            }
+
+            if (position === "left") {
+                x = self._x - (self._tooltip._w + margin);
+                y = v_centered;
+            } else if (position === "top") {
+                x = h_centered;
+                y = self._y - (self._tooltip._h + margin);
+            } else if (position === "right") {
+                x = self._x + self._w + margin;
+                y = v_centered;
+            } else if (position === "bottom") {
+                x = h_centered;
+                y = self._y + self._tooltip._h + margin;
+            } else {
+                console.warn("Unrecognized position.");
+            }
+
+            self._tooltip.x = x;
+            self._tooltip.y = y;
+
+            self._position = position;
+
+            return self;
+        }
+    });
 })();
